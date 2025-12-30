@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>个人历史成交记录</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+body{background:#0b0e11;color:#eaecef;padding:20px}
+.container{max-width:1100px;margin:auto}
+
+/* Header */
+h1{font-size:28px;margin-bottom:6px}
+.subtitle{color:#848e9c;font-size:14px}
+
+/* Trust */
+.trust-box{
+    background:#161a1e;
+    border-left:4px solid #f0b90b;
+    padding:16px 18px;
+    border-radius:8px;
+    margin:20px 0;
+    line-height:1.6
+}
+.trust-box strong{color:#f0b90b}
+.trust-en{color:#848e9c;font-size:13px;margin-top:6px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:24px 0}
+.stat-card{background:#161a1e;border-radius:10px;padding:16px}
+.stat-title{font-size:13px;color:#848e9c;margin-bottom:6px}
+.stat-value{font-size:22px;font-weight:600}
+.usdt{color:#26a17b}
+.usdc{color:#2775ca}
+
+/* Controls */
+.controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+select,button{
+    background:#161a1e;color:#eaecef;
+    border:1px solid #2b3139;border-radius:6px;
+    padding:8px 12px;font-size:14px;cursor:pointer
+}
+button.active{border-color:#f0b90b;color:#f0b90b}
+
+/* Table */
+table{width:100%;border-collapse:collapse;background:#161a1e;border-radius:12px;overflow:hidden}
+thead{background:#1e2329}
+th,td{padding:14px 16px;font-size:14px;border-bottom:1px solid #2b3139;text-align:left}
+th{color:#848e9c;font-weight:500}
+tbody tr:hover{background:#1e2329}
+
+/* Asset */
+.asset{display:inline-flex;gap:6px;font-weight:600;align-items:center}
+.asset-symbol{font-size:12px;padding:2px 8px;border-radius:999px}
+.asset.usdt .asset-symbol{background:rgba(38,161,123,.15);color:#26a17b}
+.asset.usdc .asset-symbol{background:rgba(39,117,202,.15);color:#2775ca}
+
+/* Source */
+.source{font-size:12px;color:#848e9c}
+.source span{color:#f0b90b}
+
+/* Timeline */
+.timeline{display:none;margin-top:20px}
+.timeline-item{border-left:2px solid #2b3139;padding-left:20px;margin-bottom:20px;position:relative}
+.timeline-item::before{
+    content:"";width:10px;height:10px;
+    background:#f0b90b;border-radius:50%;
+    position:absolute;left:-6px;top:6px
+}
+.timeline-date{font-size:13px;color:#848e9c}
+.timeline-main{margin:6px 0}
+.timeline-meta{font-size:12px;color:#848e9c}
+
+/* Link */
+a{color:#f0b90b;text-decoration:none}
+a:hover{text-decoration:underline}
+
+footer{text-align:center;color:#848e9c;font-size:13px;margin-top:30px}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>G.Ark个人历史成交记录</h1>
+<div class="subtitle">USDT / USDC 数字资产与商品的公开成交留档</div>
+
+<div class="trust-box">
+<strong>成交可信声明</strong><br>
+本页面所展示的成交记录均为本人历史真实交易留档，
+包含交易所成交与链上转账记录，仅用于个人展示与可信度证明。
+<div class="trust-en">
+<strong>Transaction Credibility Statement</strong><br>
+All records shown represent my real historical transactions,
+including centralized exchanges and on-chain transfers.
+</div>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="stat-title">USDT 成交额</div><div id="usdtTotal" class="stat-value usdt">¥0</div></div>
+  <div class="stat-card"><div class="stat-title">USDC 成交额</div><div id="usdcTotal" class="stat-value usdc">¥0</div></div>
+  <div class="stat-card"><div class="stat-title">累计成交笔数</div><div id="recordCount" class="stat-value">0</div></div>
+</div>
+
+<div class="controls">
+<select id="yearFilter"><option value="all">全部年份</option></select>
+<select id="assetFilter">
+  <option value="all">全部币种</option>
+  <option value="USDT">USDT</option>
+  <option value="USDC">USDC</option>
+</select>
+<button id="tableBtn" class="active">表格视图</button>
+<button id="timelineBtn">时间轴视图</button>
+</div>
+
+<table id="recordTable">
+<thead>
+<tr>
+  <th>日期</th>
+  <th>资产</th>
+  <th>成交价</th>
+  <th>交易方式</th>
+  <th>链接</th>
+</tr>
+</thead>
+<tbody>
+
+<tr data-date="2025-12-30" data-asset="USDC" data-price="36"
+    data-source="exchange" data-tx="0xec9ea395130f820896e9f2e4cb694259e35605470d19289a80069d4bae7f75f9"
+    data-link="https://www.nodeseek.com/post-563840-1">
+<td>2025-12-30</td>
+<td class="asset usdc"><span>5</span><span class="asset-symbol">USDC</span></td>
+<td>¥36</td>
+<td class="source">链上 · <a href="https://bscscan.com/tx/0xec9ea395130f820896e9f2e4cb694259e35605470d19289a80069d4bae7f75f9" target="_blank">BSC(BEP20)</a></td>
+<td><a href="https://www.nodeseek.com/post-563840-1" target="_blank">查看</a></td>
+</tr>
+
+<tr data-date="2025-12-28" data-asset="USDT" data-price="70"
+    data-source="exchange" data-tx="0xae028abc23d38793c3fb417bacabede067b9499b8b8e977a183667a05a99fb43"
+    data-link="https://www.nodeseek.com/post-562138-1">
+<td>2025-12-28</td>
+<td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
+<td>¥70</td>
+<td class="source">链上 · <a href="https://bscscan.com/tx/0xae028abc23d38793c3fb417bacabede067b9499b8b8e977a183667a05a99fb43" target="_blank">BSC(BEP20)</a></td>
+<td><a href="https://www.nodeseek.com/post-562138-1" target="_blank">查看</a></td>
+</tr>
+
+<tr data-date="2025-12-23" data-asset="USDT" data-price="71"
+    data-source="exchange" data-tx="0xcfe5b6005e84f9a18f18b976d1144b6e6e28b05da5a2959f13243a09b9dae7ca"
+    data-link="https://www.nodeseek.com/post-555037-1">
+<td>2025-12-23</td>
+<td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
+<td>¥71</td>
+<td class="source">链上 · <a href="https://bscscan.com/tx/0xcfe5b6005e84f9a18f18b976d1144b6e6e28b05da5a2959f13243a09b9dae7ca" target="_blank">BSC(BEP20)</a></td>
+<td><a href="https://www.nodeseek.com/post-555037-1" target="_blank">查看</a></td>
+</tr>
+
+<tr data-date="2025-12-23" data-asset="USDT" data-price="71"
+    data-source="exchange" data-platform="欧易"
+    data-link="https://www.nodeseek.com/post-555332-1">
+<td>2025-12-23</td>
+<td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
+<td>¥71</td>
+<td class="source">交易所 · <span>欧易</span></td>
+<td><a href="https://www.nodeseek.com/post-555332-1" target="_blank">查看</a></td>
+</tr>
+
+<tr data-date="2025-12-20" data-asset="USDT" data-price="106.5"
+    data-source="onchain" data-tx="0xd6694d15fe84bfe24d3ee13d77e80f8637d3eb269ff39df03747ec249b0bce78"
+    data-link="https://www.nodeseek.com/post-550273-1">
+<td>2025-12-20</td>
+<td class="asset usdt"><span>15</span><span class="asset-symbol">USDT</span></td>
+<td>¥106.5</td>
+<td class="source">链上 · <a href="https://bscscan.com/tx/0xd6694d15fe84bfe24d3ee13d77e80f8637d3eb269ff39df03747ec249b0bce78" target="_blank">BSC(BEP20)</a></td>
+<td><a href="https://www.nodeseek.com/post-550273-1" target="_blank">查看</a></td>
+</tr>
+
+<tr data-date="2025-12-20" data-asset="USDT" data-price="144"
+    data-source="exchange" data-platform="Binance"
+    data-link="https://www.nodeseek.com/post-550044-1">
+<td>2025-12-20</td>
+<td class="asset usdt"><span>20</span><span class="asset-symbol">USDT</span></td>
+<td>¥144</td>
+<td class="source">交易所 · <span>Bybit</span></td>
+<td><a href="https://www.nodeseek.com/post-550044-1" target="_blank">查看</a></td>
+</tr>
+
+<tr data-date="2025-12-20" data-asset="USDC" data-price="15"
+    data-source="onchain" data-tx="0xabc123456789abcdef"
+    data-link="https://www.nodeseek.com/post-550325-1">
+<td>2025-12-20</td>
+<td class="asset usdc"><span>2</span><span class="asset-symbol">USDC</span></td>
+<td>¥15</td>
+<td class="source">链上 · <a href="https://bscscan.com/tx/0x1bd3e8406ec950d635c0b4605e801bd50878c4cc5aa8bb3e71cb564ae1482825" target="_blank">BSC(BEP20)</a></td>
+<td><a href="https://www.nodeseek.com/post-550325-1" target="_blank">查看</a></td>
+</tr>
+
+<tr data-date="2025-12-20" data-asset="USDT" data-price="35.5"
+    data-source="exchange" data-platform="Bybit"
+    data-link="https://www.nodeseek.com/post-549910-1">
+<td>2025-12-20</td>
+<td class="asset usdt"><span>5</span><span class="asset-symbol">USDT</span></td>
+<td>¥35.5</td>
+<td class="source">交易所 · <span>Bybit</span></td>
+<td><a href="https://www.nodeseek.com/post-549910-1" target="_blank">查看</a></td>
+</tr>
+</tbody>
+</table>
+
+<div class="timeline" id="timeline"></div>
+
+<footer>© 2025-2026 个人成交记录</footer>
+
+</div>
+
+<script>
+const rows=[...document.querySelectorAll("tbody tr")];
+const yearFilter=document.getElementById("yearFilter");
+const assetFilter=document.getElementById("assetFilter");
+const timeline=document.getElementById("timeline");
+
+[...new Set(rows.map(r=>r.dataset.date.slice(0,4)))]
+.sort((a,b)=>b-a)
+.forEach(y=>{
+  const o=document.createElement("option");
+  o.value=y;o.textContent=y;yearFilter.appendChild(o);
+});
+
+function update(){
+  let usdt=0,usdc=0,count=0;
+  timeline.innerHTML="";
+  rows.forEach(r=>{
+    const y=r.dataset.date.slice(0,4);
+    const a=r.dataset.asset;
+    const p=parseFloat(r.dataset.price);
+    const show=(yearFilter.value==="all"||yearFilter.value===y)
+        &&(assetFilter.value==="all"||assetFilter.value===a);
+    r.style.display=show?"":"none";
+    if(show){
+      count++;
+      if(a==="USDT")usdt+=p;
+      if(a==="USDC")usdc+=p;
+      const item=document.createElement("div");
+      item.className="timeline-item";
+      item.innerHTML=`
+        <div class="timeline-date">${r.dataset.date}</div>
+        <div class="timeline-main">${r.children[1].innerHTML} · ¥${p}</div>
+        <div class="timeline-meta">${r.children[3].innerHTML} ｜ <a href="${r.dataset.link}" target="_blank">原帖</a></div>`;
+      timeline.appendChild(item);
+    }
+  });
+  usdtTotal.textContent=`¥${usdt.toFixed(2)}`;
+  usdcTotal.textContent=`¥${usdc.toFixed(2)}`;
+  recordCount.textContent=count;
+}
+
+tableBtn.onclick=()=>{recordTable.style.display="";timeline.style.display="none"};
+timelineBtn.onclick=()=>{recordTable.style.display="none";timeline.style.display="block"};
+yearFilter.onchange=assetFilter.onchange=update;
+update();
+</script>
+
+</body>
+</html>
