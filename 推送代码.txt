@@ -1,0 +1,10 @@
+# 1. 添加修改的文件到暂存区
+git add .
+# 或添加特定文件
+# git add index.html
+
+# 2. 提交更改并添加描述
+git commit -m "更新描述：比如'添加新交易记录'"
+
+# 3. 推送到GitHub
+git push
