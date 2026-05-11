@@ -1,634 +1,600 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>个人历史成交记录</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>G1314047 · 成交留档 | 交易明细展示</title>
     <style>
-        *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-        body{background:#0b0e11;color:#eaecef;padding:20px}
-        .container{max-width:1100px;margin:auto}
-        /* Header */
-        h1{font-size:28px;margin-bottom:6px}
-        .subtitle{color:#848e9c;font-size:14px}
-        /* Trust */
-        .trust-box{
-            background:#161a1e;
-            border-left:4px solid #f0b90b;
-            padding:16px 18px;
-            border-radius:8px;
-            margin:20px 0;
-            line-height:1.6
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .trust-box strong{color:#f0b90b}
-        .trust-en{color:#848e9c;font-size:13px;margin-top:6px}
-        /* Stats */
-        .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:24px 0}
-        .stat-card{background:#161a1e;border-radius:10px;padding:16px}
-        .stat-title{font-size:13px;color:#848e9c;margin-bottom:6px}
-        .stat-value{font-size:22px;font-weight:600}
-        .usdt{color:#26a17b}
-        .usdc{color:#2775ca}
-        /* Controls */
-        .controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-        select,button{
-            background:#161a1e;color:#eaecef;
-            border:1px solid #2b3139;border-radius:6px;
-            padding:8px 12px;font-size:14px;cursor:pointer
+
+        /* 主题变量 (亮色/暗黑) */
+        :root {
+            --bg-page: #f5f7fb;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            --border-light: #e6edf4;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --accent-gold: #eab308;
+            --accent-gold-soft: #fef9e3;
+            --accent-usdt: #10b981;
+            --accent-usdc: #3b82f6;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.03), 0 4px 8px rgba(0,0,0,0.02);
+            --shadow-md: 0 8px 20px rgba(0,0,0,0.04);
+            --transition: all 0.2s ease;
         }
-        button.active{border-color:#f0b90b;color:#f0b90b}
-        /* Table */
-        table{width:100%;border-collapse:collapse;background:#161a1e;border-radius:12px;overflow:hidden}
-        thead{background:#1e2329}
-        th,td{padding:14px 16px;font-size:14px;border-bottom:1px solid #2b3139;text-align:left}
-        th{color:#848e9c;font-weight:500}
-        tbody tr:hover{background:#1e2329}
-        /* Asset */
-        .asset{display:inline-flex;gap:6px;font-weight:600;align-items:center}
-        .asset-symbol{font-size:12px;padding:2px 8px;border-radius:999px}
-        .asset.usdt .asset-symbol{background:rgba(38,161,123,.15);color:#26a17b}
-        .asset.usdc .asset-symbol{background:rgba(39,117,202,.15);color:#2775ca}
-        /* Source */
-        .source{font-size:12px;color:#848e9c}
-        .source span{color:#f0b90b}
-        /* Timeline */
-        .timeline{display:none;margin-top:20px}
-        .timeline-item{border-left:2px solid #2b3139;padding-left:20px;margin-bottom:20px;position:relative}
-        .timeline-item::before{
-            content:"";width:10px;height:10px;
-            background:#f0b90b;border-radius:50%;
-            position:absolute;left:-6px;top:6px
+
+        body.dark {
+            --bg-page: #0a0c10;
+            --bg-surface: #14181f;
+            --bg-card: #14181f;
+            --bg-hover: #1e2530;
+            --border-light: #232a33;
+            --text-primary: #f1f3f5;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-gold-soft: #2a2418;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+            --shadow-md: 0 8px 20px rgba(0,0,0,0.3);
         }
-        .timeline-date{font-size:13px;color:#848e9c}
-        .timeline-main{margin:6px 0}
-        .timeline-meta{font-size:12px;color:#848e9c}
-        /* Link */
-        a{color:#f0b90b;text-decoration:none}
-        a:hover{text-decoration:underline}
-        footer{text-align:center;color:#848e9c;font-size:13px;margin-top:30px}
+
+        body {
+            background: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            line-height: 1.4;
+            padding: 2rem 1rem;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* 顶部栏 + 主题切换 */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1.75rem;
+            gap: 1rem;
+        }
+        .title-section h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #f59e0b 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .title-section .sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        .theme-toggle {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(2px);
+            transition: var(--transition);
+        }
+        .theme-toggle:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-gold);
+        }
+
+        /* 声明卡片 (简洁信任) */
+        .trust-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--accent-gold);
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(2px);
+        }
+        .trust-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .trust-card strong {
+            color: var(--accent-gold);
+        }
+        .trust-en {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 1.2rem 1.2rem;
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .stat-number {
+            font-size: 1.9rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .usdt-num { color: var(--accent-usdt); }
+        .usdc-num { color: var(--accent-usdc); }
+        .count-num { color: var(--text-primary); }
+
+        /* 筛选栏 */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .filter-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        select, .view-btn {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        select:hover, .view-btn:hover {
+            border-color: var(--accent-gold);
+        }
+        .view-btn.active {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            color: #0f172a;
+        }
+        body.dark .view-btn.active {
+            color: #0a0c10;
+        }
+
+        /* 表格样式 (简洁无边框感) */
+        .table-wrapper {
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--border-light);
+            overflow-x: auto;
+            box-shadow: var(--shadow-sm);
+        }
+        .record-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .record-table th {
+            text-align: left;
+            padding: 1rem 1.2rem;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .record-table td {
+            padding: 0.9rem 1.2rem;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+        .record-table tr:last-child td {
+            border-bottom: none;
+        }
+        .record-table tbody tr:hover {
+            background: var(--bg-hover);
+            transition: 0.1s;
+        }
+
+        /* 资产标记 */
+        .asset-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+        .asset-symbol {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            background: rgba(16,185,129,0.12);
+            color: var(--accent-usdt);
+        }
+        .asset-symbol.usdc {
+            background: rgba(59,130,246,0.12);
+            color: var(--accent-usdc);
+        }
+        .source-link {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .source-link a, .tx-link {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .source-link a:hover {
+            text-decoration: underline;
+        }
+        .tx-hash {
+            font-family: 'SF Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        /* 时间轴视图 (简洁卡片式) */
+        .timeline-view {
+            display: none;
+            margin-top: 1rem;
+        }
+        .timeline-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .timeline-node {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1rem 1.2rem;
+            border: 1px solid var(--border-light);
+            transition: 0.2s;
+            position: relative;
+        }
+        .timeline-node:hover {
+            background: var(--bg-hover);
+            transform: translateX(4px);
+        }
+        .timeline-date {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.5rem;
+        }
+        .timeline-asset {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 0.4rem;
+        }
+        .timeline-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* 无数据/空状态 */
+        .empty-msg {
+            padding: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-light);
+            padding-top: 1.5rem;
+        }
+
+        @media (max-width: 680px) {
+            body { padding: 1rem; }
+            .stat-number { font-size: 1.5rem; }
+            .record-table th, .record-table td { padding: 0.7rem 0.8rem; }
+        }
     </style>
 <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
 <script>LA.init({id:"3Pu4goGJsplFKCGv",ck:"3Pu4goGJsplFKCGv"})</script>
 </head>
 <body>
-    <div class="container">
-        <h1>G.Ark个人历史成交记录</h1>
-        <div class="subtitle">USDT / USDC 数字资产与商品的公开成交留档</div>
-        
-        <div class="trust-box">
-            <strong>成交可信声明</strong><br>
-            本页面所展示的成交记录均为本人历史真实交易留档，
-            包含交易所成交与链上转账记录，仅用于个人展示与可信度证明。
-            <div class="trust-en">
-                <strong>Transaction Credibility Statement</strong><br>
-                All records shown represent my real historical transactions, including centralized exchanges and on-chain transfers.
-            </div>
+<div class="container">
+    <div class="header">
+        <div class="title-section">
+            <h1>G1314047 · 成交留档</h1>
+            <div class="sub">USDT / USDC 历史交易明细 · 链上+交易所记录</div>
         </div>
-        
-        <div class="stats">
-            <div class="stat-card"><div class="stat-title">USDT 成交量</div><div id="usdtTotal" class="stat-value usdt">0 USDT</div></div>
-            <div class="stat-card"><div class="stat-title">USDC 成交量</div><div id="usdcTotal" class="stat-value usdc">0 USDC</div></div>
-            <div class="stat-card"><div class="stat-title">累计成交笔数</div><div id="recordCount" class="stat-value">0</div></div>
-        </div>
-        
-        <div class="controls">
-            <select id="yearFilter"><option value="all">全部年份</option></select>
-            <select id="assetFilter">
-                <option value="all">全部币种</option>
+        <button class="theme-toggle" id="themeToggleBtn">
+            <span>🌙</span> 暗色模式
+        </button>
+    </div>
+
+    <div class="trust-card">
+        <p>✔ <strong>可信声明</strong> — 以下所有成交记录均为本人历史真实交易留档，包含交易所成交与链上转账记录，数据可溯源验证。</p>
+        <div class="trust-en">🔒 Credibility statement: All records reflect real transactions (CEX & on-chain).</div>
+    </div>
+
+    <!-- 统计区块 -->
+    <div class="stats-grid" id="statsArea">
+        <div class="stat-card"><div class="stat-label">💰 USDT 总成交量</div><div class="stat-number" id="totalUSDT">0 USDT</div></div>
+        <div class="stat-card"><div class="stat-label">💎 USDC 总成交量</div><div class="stat-number" id="totalUSDC">0 USDC</div></div>
+        <div class="stat-card"><div class="stat-label">📋 总成交笔数</div><div class="stat-number" id="totalCount">0</div></div>
+    </div>
+
+    <!-- 筛选 + 视图切换 -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <select id="yearSelect"><option value="all">📅 全部年份</option></select>
+            <select id="assetSelect">
+                <option value="all">🏷️ 全部资产</option>
                 <option value="USDT">USDT</option>
                 <option value="USDC">USDC</option>
             </select>
-            <button id="tableBtn" class="active">表格视图</button>
-            <button id="timelineBtn">时间轴视图</button>
         </div>
-        
-        <table id="recordTable">
-            <thead>
-                <tr>
-                    <th>日期</th>
-                    <th>资产</th>
-                    <th>交易方式</th>
-                    <th>链接</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr data-date="2026-05-11" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-05-11</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="50" data-source="exchange" data-tx="0x1c252f1381d1b40e8896412566ef82df9ad1197182ac75050d62e6ffc52fd214" data-link="https://www.nodeseek.com/post-724183-1">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>50</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x1c252f1381d1b40e8896412566ef82df9ad1197182ac75050d62e6ffc52fd214" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-724183-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="5" data-source="exchange" data-tx="0x6965b8c0afb4d5c9f897746af8d1b627a1db1fe716e08d36386069ef9524c3a0" data-link="">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>5</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x6965b8c0afb4d5c9f897746af8d1b627a1db1fe716e08d36386069ef9524c3a0" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="5" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>5</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="13" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>13</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="18" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-723730-1">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>18</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-723730-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="20" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>20</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="20" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-723207-1">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>20</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-723207-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="15" data-source="exchange" data-tx="0xdc8bc0d310b16188e634d728eb8d267085030c472f47a48e065e5f757a8833dd" data-link="">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>15</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xdc8bc0d310b16188e634d728eb8d267085030c472f47a48e065e5f757a8833dd" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="15" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>15</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                <tr data-date="2026-05-10" data-asset="USDT" data-amount="30" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-722838-1">
-                    <td>2026-05-10</td>
-                    <td class="asset usdt"><span>30</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-722838-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-09" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-721725-1">
-                    <td>2026-05-09</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-721725-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-08" data-asset="USDT" data-amount="50" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-719311-1">
-                    <td>2026-05-08</td>
-                    <td class="asset usdt"><span>50</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-719311-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-05" data-asset="USDT" data-amount="50" data-source="exchange" data-tx="0x0a578f6d9c8ad00dc3cdf2f0a93f6dfbc0e0ea05126b754e4252322975bbae5a" data-link="https://www.nodeseek.com/post-714512-1">
-                    <td>2026-05-05</td>
-                    <td class="asset usdt"><span>50</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x0a578f6d9c8ad00dc3cdf2f0a93f6dfbc0e0ea05126b754e4252322975bbae5a" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-714512-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-05" data-asset="USDT" data-amount="50" data-source="exchange" data-tx="0xe039f4f0bcf730e0ad655fca947aba43496642aae72756b053819e28eac769fe" data-link="https://www.nodeseek.com/post-714407-1">
-                    <td>2026-05-05</td>
-                    <td class="asset usdt"><span>50</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xe039f4f0bcf730e0ad655fca947aba43496642aae72756b053819e28eac769fe" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-714407-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-05" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-05-05</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-05-04" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="0x28e74313e9e795e8f9e1abaf1bc30fbec4bfb7fa269db0d3ba1943a5c90c0bf1" data-link="https://www.nodeseek.com/post-714329-1">
-                    <td>2026-05-04</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x28e74313e9e795e8f9e1abaf1bc30fbec4bfb7fa269db0d3ba1943a5c90c0bf1" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-714329-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-04" data-asset="USDT" data-amount="18" data-source="exchange" data-tx="0x90abda30f60f9a8e6543053b21c868e7d9a7dadf7d31663fcda7f088f882344d" data-link="https://www.nodeseek.com/post-714311-1">
-                    <td>2026-05-04</td>
-                    <td class="asset usdt"><span>18</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x90abda30f60f9a8e6543053b21c868e7d9a7dadf7d31663fcda7f088f882344d" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-714311-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-04" data-asset="USDT" data-amount="5.7" data-source="exchange" data-tx="0x988c2aefa62eb370ed335b5b3a5e3ae8f2ba86c078836ba9705f0a0753872480" data-link="https://www.nodeseek.com/post-714150-1">
-                    <td>2026-05-04</td>
-                    <td class="asset usdt"><span>5.7</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x988c2aefa62eb370ed335b5b3a5e3ae8f2ba86c078836ba9705f0a0753872480" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-714150-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-04" data-asset="USDT" data-amount="40" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-05-04</td>
-                    <td class="asset usdt"><span>40</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-05-04" data-asset="USDT" data-amount="5" data-source="exchange" data-tx="0xf092e53284aedbaedaecd2d684efd22e057c718f7b8e8c0bcd57d727cf34532b" data-link="https://www.nodeseek.com/post-714062-1">
-                    <td>2026-05-04</td>
-                    <td class="asset usdt"><span>5</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xf092e53284aedbaedaecd2d684efd22e057c718f7b8e8c0bcd57d727cf34532b" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-714062-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-04" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-05-04</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-05-03" data-asset="USDT" data-amount="22.67" data-source="exchange" data-tx="fdd0cb0af2b75c199def1fb513a2f62499a840ff18c144c51cd90f72290df173" data-link="https://www.nodeseek.com/post-711777-1">
-                    <td>2026-05-03</td>
-                    <td class="asset usdt"><span>22.67</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://tronscan.org/#/transaction/fdd0cb0af2b75c199def1fb513a2f62499a840ff18c144c51cd90f72290df173" target="_blank">TRC20</a></td>
-                    <td><a href="https://www.nodeseek.com/post-711777-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-05-01" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-709862-1">
-                    <td>2026-05-01</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-709862-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-04-27" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="0xbeccaad38846bae567e957b0aea05c03cbc5d11b06c2036f33f7723b7400e86d" data-link="">
-                    <td>2026-04-27</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xbeccaad38846bae567e957b0aea05c03cbc5d11b06c2036f33f7723b7400e86d" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-04-27" data-asset="USDT" data-amount="5" data-source="exchange" data-tx="0x24911056597213d1955fde1be659c10cbf9b3ce3fb63db49afb4e175c19e604b" data-link="https://www.nodeseek.com/post-704170-1">
-                    <td>2026-04-27</td>
-                    <td class="asset usdt"><span>5</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x24911056597213d1955fde1be659c10cbf9b3ce3fb63db49afb4e175c19e604b" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-704170-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-04-27" data-asset="USDT" data-amount="15" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-703771-1">
-                    <td>2026-04-27</td>
-                    <td class="asset usdt"><span>15</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-703771-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-04-26" data-asset="USDT" data-amount="40" data-source="exchange" data-tx="0x9acd1a88c4291716582f1248f30fe00374ccd933b3930dfb0c11d9759517afec" data-link="https://www.nodeseek.com/post-702739-1">
-                    <td>2026-04-26</td>
-                    <td class="asset usdt"><span>40</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x9acd1a88c4291716582f1248f30fe00374ccd933b3930dfb0c11d9759517afec" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-702739-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-04-25" data-asset="USDT" data-amount="35" data-source="exchange" data-tx="0xb7858952ad2d7b29fe0b12916e777fd1b9f5d02f0acb60c618c854dc7f" data-link="https://www.nodeseek.com/post-701896-1">
-                    <td>2026-04-25</td>
-                    <td class="asset usdt"><span>35</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xb7858952ad2d7b29fe0b12916e777fd1b9f5d02f0acb60c618c854dc7f" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-701896-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-04-24" data-asset="USDT" data-amount="25.5" data-source="exchange" data-tx="0xaef215fc5a196c136c03c83a859cb7e6bc723808905f9b4ab1da038fe11d2b9d" data-link="https://www.nodeseek.com/post-699380-1">
-                    <td>2026-04-24</td>
-                    <td class="asset usdt"><span>25.5</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xaef215fc5a196c136c03c83a859cb7e6bc723808905f9b4ab1da038fe11d2b9d" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-699380-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-02-23" data-asset="USDT" data-amount="5" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-02-23</td>
-                    <td class="asset usdt"><span>5</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-02-23" data-asset="USDT" data-amount="5" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-02-23</td>
-                    <td class="asset usdt"><span>5</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-02-22" data-asset="USDT" data-amount="4" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-02-22</td>
-                    <td class="asset usdt"><span>4</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-02-12" data-asset="USDC" data-amount="40" data-source="exchange" data-tx="0xaaad3143e8056b7e72383f40e862a21f2af5937908dca3339d9b3e315462c6f2" data-link="">
-                    <td>2026-02-12</td>
-                    <td class="asset usdc"><span>40</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0xaaad3143e8056b7e72383f40e862a21f2af5937908dca3339d9b3e315462c6f2" target="_blank">Arbitrum</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-02-12" data-asset="USDC" data-amount="10" data-source="exchange" data-tx="0xb848ecc29f87e391f0a802cbfdd5def28af8bc7cbfef6bef387d59f6f0756473" data-link="">
-                    <td>2026-02-12</td>
-                    <td class="asset usdc"><span>10</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xb848ecc29f87e391f0a802cbfdd5def28af8bc7cbfef6bef387d59f6f0756473" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-02-03" data-asset="USDT" data-amount="15" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-605741-1">
-                    <td>2026-02-03</td>
-                    <td class="asset usdt"><span>15</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-605741-1" target="_blank">查看</a></td>
-                </tr>
-               <tr data-date="2026-01-31" data-asset="USDC" data-amount="10" data-source="exchange" data-tx="0xb22ffbd3f3b332bd55a41103f834416f1a3f07ada9550a9f34d5532e8b0f8a91" data-link="https://www.nodeseek.com/post-602896-1">
-                    <td>2026-01-31</td>
-                    <td class="asset usdc"><span>10</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0xb22ffbd3f3b332bd55a41103f834416f1a3f07ada9550a9f34d5532e8b0f8a91" target="_blank">Arbitrum</a></td>
-                    <td><a href="https://www.nodeseek.com/post-602896-1" target="_blank">查看</a></td>
-                </tr>
-                 <tr data-date="2026-01-30" data-asset="USDT" data-amount="5" data-source="exchange" data-tx="Bitget" data-link="https://www.nodeseek.com/post-601416-1">
-                    <td>2026-01-30</td>
-                    <td class="asset usdt"><span>5</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bitget</span></td>
-                    <td><a href="https://www.nodeseek.com/post-601416-1" target="_blank">查看</a></td>
-                </tr>
-               <tr data-date="2026-01-19" data-asset="USDC" data-amount="100" data-source="exchange" data-tx="0x088477edcfd495be8f2689a89e672b1eb33d3237a95463b465ceda0db7df36af" data-link="">
-                    <td>2026-01-19</td>
-                    <td class="asset usdc"><span>100</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0x088477edcfd495be8f2689a89e672b1eb33d3237a95463b465ceda0db7df36af" target="_blank">Arbitrum</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-19" data-asset="USDT" data-amount="20" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-588208-1">
-                    <td>2026-01-19</td>
-                    <td class="asset usdt"><span>20</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-588208-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-17" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="Bybit" data-link="https://www.nodeseek.com/post-585210-1">
-                    <td>2026-01-17</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-585210-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-15" data-asset="USDC" data-amount="5" data-source="exchange" data-tx="0xa5234290827f07fd9a7ac0a6d516b9d04be74e0e0669594299d20ddfc60c0f3d" data-link="">
-                    <td>2026-01-15</td>
-                    <td class="asset usdc"><span>5</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0xa5234290827f07fd9a7ac0a6d516b9d04be74e0e0669594299d20ddfc60c0f3d" target="_blank">Arbitrum</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-15" data-asset="USDC" data-amount="30" data-source="exchange" data-tx="0x25fdfc97b700d2529067aa784bfcba12a917ad88b96b5f68d161dcc20f8c7dac" data-link="https://www.nodeseek.com/post-583669-1">
-                    <td>2026-01-15</td>
-                    <td class="asset usdc"><span>11</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0x25fdfc97b700d2529067aa784bfcba12a917ad88b96b5f68d161dcc20f8c7dac" target="_blank">Arbitrum</a></td>
-                    <td><a href="https://www.nodeseek.com/post-583669-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-14" data-asset="USDT" data-amount="30" data-source="exchange" data-tx="0xc6855ae0b3ef3d357f5beeea194241f04df45e8d028ba05cf6ed309c60d86d18" data-link="">
-                    <td>2026-01-14</td>
-                    <td class="asset usdt"><span>30</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xc6855ae0b3ef3d357f5beeea194241f04df45e8d028ba05cf6ed309c60d86d18" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-12" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="0x0faffe8f5b4ca622cb421f85da25f3b37965486d9469bbbd898b419e10f30987" data-link="https://www.nodeseek.com/post-579941-1">
-                    <td>2026-01-12</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x0faffe8f5b4ca622cb421f85da25f3b37965486d9469bbbd898b419e10f30987" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-579941-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-11" data-asset="USDT" data-amount="15" data-source="exchange" data-tx="0xb8d4b99e43d1ab7874fa8907524a79af2c65f10c484ea7830f2cf71909e9b9c1" data-link="">
-                    <td>2026-01-11</td>
-                    <td class="asset usdt"><span>15</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xb8d4b99e43d1ab7874fa8907524a79af2c65f10c484ea7830f2cf71909e9b9c1" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-11" data-asset="USDC" data-amount="10" data-source="exchange" data-tx="0xc08d78ce5fb72ec6527e720cff52de92dbd1f71396d0c89c4170c308c8932252" data-link="">
-                    <td>2026-01-11</td>
-                    <td class="asset usdc"><span>10</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0xc08d78ce5fb72ec6527e720cff52de92dbd1f71396d0c89c4170c308c8932252" target="_blank">Arbitrum</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-10" data-asset="USDC" data-amount="100" data-source="exchange" data-tx="0xbc2c456a282af908f76971aa876fdeb0eacf4fcb02a77774020557d4bf289293" data-link="">
-                    <td>2026-01-10</td>
-                    <td class="asset usdc"><span>100</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0xbc2c456a282af908f76971aa876fdeb0eacf4fcb02a77774020557d4bf289293" target="_blank">Arbitrum</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-08" data-asset="USDC" data-amount="20" data-source="exchange" data-tx="0x9f1614a94551611e51bfd8472ca49f23f79436778e4660be1d1af256b6cd45b0" data-link="https://www.nodeseek.com/post-575404-1">
-                    <td>2026-01-08</td>
-                    <td class="asset usdc"><span>20</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0x9f1614a94551611e51bfd8472ca49f23f79436778e4660be1d1af256b6cd45b0" target="_blank">Arbitrum</a></td>
-                    <td><a href="https://www.nodeseek.com/post-575404-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-08" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="0xecd96d1d4dee7112de345fd21dcdb63895c8703c1ceea066dbbe5a5f5c80cee0" data-link="https://www.nodeseek.com/post-575288-1">
-                    <td>2026-01-08</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xecd96d1d4dee7112de345fd21dcdb63895c8703c1ceea066dbbe5a5f5c80cee0" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-575288-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-08" data-asset="USDC" data-amount="5" data-source="exchange" data-tx="0x31598228037028551b74fdb473170df3441bb985ea79ddc480c344132b55855c" data-link="">
-                    <td>2026-01-08</td>
-                    <td class="asset usdc"><span>5</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x31598228037028551b74fdb473170df3441bb985ea79ddc480c344132b55855c" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-07" data-asset="USDT" data-amount="20" data-source="exchange" data-tx="0x372124ac331b3398262b6a8b6d10219024b47855b8865f1f74db833384828e1f" data-link="">
-                    <td>2026-01-07</td>
-                    <td class="asset usdt"><span>20</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x372124ac331b3398262b6a8b6d10219024b47855b8865f1f74db833384828e1f" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-06" data-asset="USDT" data-amount="19" data-source="exchange" data-tx="0xfd1a94b142abca257cebee240a6600748fa42fea8f826addc64c2dc6c4a693ff" data-link="https://www.nodeseek.com/post-572909-1">
-                    <td>2026-01-06</td>
-                    <td class="asset usdt"><span>19</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xfd1a94b142abca257cebee240a6600748fa42fea8f826addc64c2dc6c4a693ff" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-572909-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-06" data-asset="USDT" data-amount="1" data-source="exchange" data-tx="0x815cacf79166915f7855e1260177cd618005e9b1211d9da81e3bffc5cd9a2d04" data-link="https://www.nodeseek.com/post-572909-1">
-                    <td>2026-01-06</td>
-                    <td class="asset usdt"><span>1</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x815cacf79166915f7855e1260177cd618005e9b1211d9da81e3bffc5cd9a2d04" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-572909-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-06" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="0x04a628e88e766f78c01ffec6b91b9992587522b5966002a6ad8b2ed9dcb1dd25" data-link="https://www.nodeseek.com/post-572739-1">
-                    <td>2026-01-06</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x04a628e88e766f78c01ffec6b91b9992587522b5966002a6ad8b2ed9dcb1dd25" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-572739-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-06" data-asset="USDT" data-amount="2" data-source="exchange" data-tx="0x66bbfea5bc9e6a753c97015fdf8db12b3e335d6d58b9c5e4e49e607fa3670ede" data-link="https://www.nodeseek.com/post-572474-1">
-                    <td>2026-01-06</td>
-                    <td class="asset usdt"><span>2</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x66bbfea5bc9e6a753c97015fdf8db12b3e335d6d58b9c5e4e49e607fa3670ede" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-572474-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-06" data-asset="USDC" data-amount="20" data-source="exchange" data-tx="0xa3d5b6fa042a608769816120b7e30107fe7bb4141bc262e5bbe9044ebcf3d135" data-link="">
-                    <td>2026-01-06</td>
-                    <td class="asset usdc"><span>20</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0xa3d5b6fa042a608769816120b7e30107fe7bb4141bc262e5bbe9044ebcf3d135" target="_blank">Arbitrum</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-04" data-asset="USDT" data-amount="28" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-01-04</td>
-                    <td class="asset usdt"><span>28</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-03" data-asset="USDT" data-amount="28" data-source="exchange" data-tx="Bybit" data-link="">
-                    <td>2026-01-03</td>
-                    <td class="asset usdt"><span>28</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-03" data-asset="USDT" data-amount="25" data-source="exchange" data-tx="0x13cfb0eb7c7293ab9e13e6ecbd5625692081d20b46287ba2b247bde8708f180c" data-link="https://www.nodeseek.com/post-568881-1">
-                    <td>2026-01-03</td>
-                    <td class="asset usdt"><span>25</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x13cfb0eb7c7293ab9e13e6ecbd5625692081d20b46287ba2b247bde8708f180c" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-568881-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-03" data-asset="USDT" data-amount="25" data-source="exchange" data-tx="0x237b30b4ee63aa4e580c7865e82a08edea468057f6dd23e8c7a256e3c286b218" data-link="https://www.nodeseek.com/post-568881-1">
-                    <td>2026-01-03</td>
-                    <td class="asset usdt"><span>25</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x237b30b4ee63aa4e580c7865e82a08edea468057f6dd23e8c7a256e3c286b218" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-568881-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2026-01-02" data-asset="USDT" data-amount="20.03" data-source="exchange" data-tx="0x93b77963fa9d302245488e050337335608d20030ac618cb9f5893c2b87e5d0e7" data-link="">
-                    <td>2026-01-02</td>
-                    <td class="asset usdt"><span>20.03</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://polygonscan.com/tx/0x93b77963fa9d302245488e050337335608d20030ac618cb9f5893c2b87e5d0e7" target="_blank">Polygon</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2026-01-02" data-asset="USDT" data-amount="10" data-source="exchange" data-platform="Bybit" data-link="https://www.nodeseek.com/post-567995-1">
-                    <td>2026-01-02</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-567995-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2025-12-31" data-asset="USDC" data-amount="10.5" data-source="exchange" data-tx="0xa786220ec4744fbb365870ec2209615adcdfdd0eeb57bfeaad86e3f7f146a496" data-link="">
-                    <td>2025-12-31</td>
-                    <td class="asset usdc"><span>10.5</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://arbiscan.io/tx/0xa786220ec4744fbb365870ec2209615adcdfdd0eeb57bfeaad86e3f7f146a496" target="_blank">Arbitrum</a></td>
-                    <td><a href="" target="_blank">私信联系无链接</a></td>
-                </tr>
-                <tr data-date="2025-12-30" data-asset="USDT" data-amount="10" data-source="exchange" data-platform="Bybit" data-link="https://www.nodeseek.com/post-564428-1">
-                    <td>2025-12-30</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-564428-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2025-12-30" data-asset="USDC" data-amount="5" data-source="exchange" data-tx="0xec9ea395130f820896e9f2e4cb694259e35605470d19289a80069d4bae7f75f9" data-link="https://www.nodeseek.com/post-563840-1">
-                    <td>2025-12-30</td>
-                    <td class="asset usdc"><span>5</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xec9ea395130f820896e9f2e4cb694259e35605470d19289a80069d4bae7f75f9" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-563840-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2025-12-28" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="0xae028abc23d38793c3fb417bacabede067b9499b8b8e977a183667a05a99fb43" data-link="https://www.nodeseek.com/post-562138-1">
-                    <td>2025-12-28</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xae028abc23d38793c3fb417bacabede067b9499b8b8e977a183667a05a99fb43" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-562138-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2025-12-23" data-asset="USDT" data-amount="10" data-source="exchange" data-tx="0xcfe5b6005e84f9a18f18b976d1144b6e6e28b05da5a2959f13243a09b9dae7ca" data-link="https://www.nodeseek.com/post-555037-1">
-                    <td>2025-12-23</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xcfe5b6005e84f9a18f18b976d1144b6e6e28b05da5a2959f13243a09b9dae7ca" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-555037-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2025-12-23" data-asset="USDT" data-amount="10" data-source="exchange" data-platform="欧易" data-link="https://www.nodeseek.com/post-555332-1">
-                    <td>2025-12-23</td>
-                    <td class="asset usdt"><span>10</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>欧易</span></td>
-                    <td><a href="https://www.nodeseek.com/post-555332-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2025-12-20" data-asset="USDT" data-amount="15" data-source="onchain" data-tx="0xd6694d15fe84bfe24d3ee13d77e80f8637d3eb269ff39df03747ec249b0bce78" data-link="https://www.nodeseek.com/post-550273-1">
-                    <td>2025-12-20</td>
-                    <td class="asset usdt"><span>15</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0xd6694d15fe84bfe24d3ee13d77e80f8637d3eb269ff39df03747ec249b0bce78" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-550273-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2025-12-20" data-asset="USDT" data-amount="20" data-source="exchange" data-platform="Binance" data-link="https://www.nodeseek.com/post-550044-1">
-                    <td>2025-12-20</td>
-                    <td class="asset usdt"><span>20</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-550044-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2025-12-20" data-asset="USDC" data-amount="2" data-source="onchain" data-tx="0x1bd3e8406ec950d635c0b4605e801bd50878c4cc5aa8bb3e71cb564ae1482825" data-link="https://www.nodeseek.com/post-550325-1">
-                    <td>2025-12-20</td>
-                    <td class="asset usdc"><span>2</span><span class="asset-symbol">USDC</span></td>
-                    <td class="source">链上 · <a href="https://bscscan.com/tx/0x1bd3e8406ec950d635c0b4605e801bd50878c4cc5aa8bb3e71cb564ae1482825" target="_blank">BSC(BEP20)</a></td>
-                    <td><a href="https://www.nodeseek.com/post-550325-1" target="_blank">查看</a></td>
-                </tr>
-                <tr data-date="2025-12-20" data-asset="USDT" data-amount="5" data-source="exchange" data-platform="Bybit" data-link="https://www.nodeseek.com/post-549910-1">
-                    <td>2025-12-20</td>
-                    <td class="asset usdt"><span>5</span><span class="asset-symbol">USDT</span></td>
-                    <td class="source">交易所 · <span>Bybit</span></td>
-                    <td><a href="https://www.nodeseek.com/post-549910-1" target="_blank">查看</a></td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <div class="timeline" id="timeline"></div>
-        
-        <footer>© 2025-2026 个人成交记录</footer>
+        <div class="filter-group">
+            <button class="view-btn active" id="tableViewBtn">📋 表格视图</button>
+            <button class="view-btn" id="timelineViewBtn">⏱️ 时间轴视图</button>
+        </div>
     </div>
-    
-    <script>
-        const rows = [...document.querySelectorAll("tbody tr")];
-        const yearFilter = document.getElementById("yearFilter");
-        const assetFilter = document.getElementById("assetFilter");
-        const timeline = document.getElementById("timeline");
-        const recordTable = document.getElementById("recordTable");
-        const tableBtn = document.getElementById("tableBtn");
-        const timelineBtn = document.getElementById("timelineBtn");
-        
-        // 生成年份筛选选项
-        [...new Set(rows.map(r => r.dataset.date.slice(0, 4)))]
-            .sort((a, b) => b - a)
-            .forEach(y => {
-                const o = document.createElement("option");
-                o.value = y;
-                o.textContent = y;
-                yearFilter.appendChild(o);
-            });
-        
-        function update() {
-            let usdtAmount = 0, usdcAmount = 0, count = 0;
-            timeline.innerHTML = "";
-            
-            rows.forEach(r => {
-                const y = r.dataset.date.slice(0, 4);
-                const asset = r.dataset.asset;
-                const amount = parseFloat(r.dataset.amount);
-                
-                const show = (yearFilter.value === "all" || yearFilter.value === y) &&
-                           (assetFilter.value === "all" || assetFilter.value === asset);
-                
-                r.style.display = show ? "" : "none";
-                
-                if (show) {
-                    count++;
-                    if (asset === "USDT") usdtAmount += amount;
-                    if (asset === "USDC") usdcAmount += amount;
-                    
-                    // 时间轴内容
-                    const item = document.createElement("div");
-                    item.className = "timeline-item";
-                    item.innerHTML = `
-                        <div class="timeline-date">${r.dataset.date}</div>
-                        <div class="timeline-main">${r.children[1].innerHTML}</div>
-                        <div class="timeline-meta">${r.children[2].innerHTML} | <a href="${r.dataset.link}" target="_blank">原帖</a></div>
-                    `;
-                    timeline.appendChild(item);
-                }
-            });
-            
-            // 更新统计
-            document.getElementById("usdtTotal").textContent = `${usdtAmount.toFixed(2)} USDT`;
-            document.getElementById("usdcTotal").textContent = `${usdcAmount.toFixed(2)} USDC`;
-            document.getElementById("recordCount").textContent = count;
+
+    <!-- 表格视图容器 -->
+    <div class="table-wrapper" id="tableViewContainer">
+        <table class="record-table" id="dataTable">
+            <thead>
+                <tr><th>日期</th><th>资产</th><th>交易方式 / 来源</th><th>证明链接</th></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- 时间轴容器 -->
+    <div id="timelineContainer" class="timeline-view"></div>
+
+    <footer>© 2025-2026 个人历史成交档案 · 链上记录皆可公开查询</footer>
+</div>
+
+<script>
+    // ---------------------------------------------------------------
+    // 原始数据 (完全保留原代码中的全部记录, 并确保结构完整)
+    // 数据基于原html rows 建立，包含所有行信息：日期，资产，金额，方式，链接，txHash等
+    // ---------------------------------------------------------------
+    const rawRecords = [
+        {date:"2026-05-11",asset:"USDT",amount:10,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-05-10",asset:"USDT",amount:50,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x1c252f1381d1b40e8896412566ef82df9ad1197182ac75050d62e6ffc52fd214",link:"https://www.nodeseek.com/post-724183-1"},
+        {date:"2026-05-10",asset:"USDT",amount:5,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x6965b8c0afb4d5c9f897746af8d1b627a1db1fe716e08d36386069ef9524c3a0",link:""},
+        {date:"2026-05-10",asset:"USDT",amount:5,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-05-10",asset:"USDT",amount:13,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-05-10",asset:"USDT",amount:18,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-723730-1"},
+        {date:"2026-05-10",asset:"USDT",amount:20,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-05-10",asset:"USDT",amount:20,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-723207-1"},
+        {date:"2026-05-10",asset:"USDT",amount:15,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xdc8bc0d310b16188e634d728eb8d267085030c472f47a48e065e5f757a8833dd",link:""},
+        {date:"2026-05-10",asset:"USDT",amount:15,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-05-10",asset:"USDT",amount:30,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-722838-1"},
+        {date:"2026-05-09",asset:"USDT",amount:10,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-721725-1"},
+        {date:"2026-05-08",asset:"USDT",amount:50,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-719311-1"},
+        {date:"2026-05-05",asset:"USDT",amount:50,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x0a578f6d9c8ad00dc3cdf2f0a93f6dfbc0e0ea05126b754e4252322975bbae5a",link:"https://www.nodeseek.com/post-714512-1"},
+        {date:"2026-05-05",asset:"USDT",amount:50,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xe039f4f0bcf730e0ad655fca947aba43496642aae72756b053819e28eac769fe",link:"https://www.nodeseek.com/post-714407-1"},
+        {date:"2026-05-05",asset:"USDT",amount:10,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-05-04",asset:"USDT",amount:10,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x28e74313e9e795e8f9e1abaf1bc30fbec4bfb7fa269db0d3ba1943a5c90c0bf1",link:"https://www.nodeseek.com/post-714329-1"},
+        {date:"2026-05-04",asset:"USDT",amount:18,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x90abda30f60f9a8e6543053b21c868e7d9a7dadf7d31663fcda7f088f882344d",link:"https://www.nodeseek.com/post-714311-1"},
+        {date:"2026-05-04",asset:"USDT",amount:5.7,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x988c2aefa62eb370ed335b5b3a5e3ae8f2ba86c078836ba9705f0a0753872480",link:"https://www.nodeseek.com/post-714150-1"},
+        {date:"2026-05-04",asset:"USDT",amount:40,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-05-04",asset:"USDT",amount:5,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xf092e53284aedbaedaecd2d684efd22e057c718f7b8e8c0bcd57d727cf34532b",link:"https://www.nodeseek.com/post-714062-1"},
+        {date:"2026-05-04",asset:"USDT",amount:10,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-05-03",asset:"USDT",amount:22.67,sourceType:"onchain",platform:"TRC20",txHash:"fdd0cb0af2b75c199def1fb513a2f62499a840ff18c144c51cd90f72290df173",link:"https://www.nodeseek.com/post-711777-1"},
+        {date:"2026-05-01",asset:"USDT",amount:10,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-709862-1"},
+        {date:"2026-04-27",asset:"USDT",amount:10,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xbeccaad38846bae567e957b0aea05c03cbc5d11b06c2036f33f7723b7400e86d",link:""},
+        {date:"2026-04-27",asset:"USDT",amount:5,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x24911056597213d1955fde1be659c10cbf9b3ce3fb63db49afb4e175c19e604b",link:"https://www.nodeseek.com/post-704170-1"},
+        {date:"2026-04-27",asset:"USDT",amount:15,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-703771-1"},
+        {date:"2026-04-26",asset:"USDT",amount:40,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x9acd1a88c4291716582f1248f30fe00374ccd933b3930dfb0c11d9759517afec",link:"https://www.nodeseek.com/post-702739-1"},
+        {date:"2026-04-25",asset:"USDT",amount:35,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xb7858952ad2d7b29fe0b12916e777fd1b9f5d02f0acb60c618c854dc7f",link:"https://www.nodeseek.com/post-701896-1"},
+        {date:"2026-04-24",asset:"USDT",amount:25.5,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xaef215fc5a196c136c03c83a859cb7e6bc723808905f9b4ab1da038fe11d2b9d",link:"https://www.nodeseek.com/post-699380-1"},
+        {date:"2026-02-23",asset:"USDT",amount:5,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-02-23",asset:"USDT",amount:5,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-02-22",asset:"USDT",amount:4,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-02-12",asset:"USDC",amount:40,sourceType:"onchain",platform:"Arbitrum",txHash:"0xaaad3143e8056b7e72383f40e862a21f2af5937908dca3339d9b3e315462c6f2",link:""},
+        {date:"2026-02-12",asset:"USDC",amount:10,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xb848ecc29f87e391f0a802cbfdd5def28af8bc7cbfef6bef387d59f6f0756473",link:""},
+        {date:"2026-02-03",asset:"USDT",amount:15,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-605741-1"},
+        {date:"2026-01-31",asset:"USDC",amount:10,sourceType:"onchain",platform:"Arbitrum",txHash:"0xb22ffbd3f3b332bd55a41103f834416f1a3f07ada9550a9f34d5532e8b0f8a91",link:"https://www.nodeseek.com/post-602896-1"},
+        {date:"2026-01-30",asset:"USDT",amount:5,sourceType:"exchange",platform:"Bitget",txHash:"",link:"https://www.nodeseek.com/post-601416-1"},
+        {date:"2026-01-19",asset:"USDC",amount:100,sourceType:"onchain",platform:"Arbitrum",txHash:"0x088477edcfd495be8f2689a89e672b1eb33d3237a95463b465ceda0db7df36af",link:""},
+        {date:"2026-01-19",asset:"USDT",amount:20,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-588208-1"},
+        {date:"2026-01-17",asset:"USDT",amount:10,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-585210-1"},
+        {date:"2026-01-15",asset:"USDC",amount:5,sourceType:"onchain",platform:"Arbitrum",txHash:"0xa5234290827f07fd9a7ac0a6d516b9d04be74e0e0669594299d20ddfc60c0f3d",link:""},
+        {date:"2026-01-15",asset:"USDC",amount:11,sourceType:"onchain",platform:"Arbitrum",txHash:"0x25fdfc97b700d2529067aa784bfcba12a917ad88b96b5f68d161dcc20f8c7dac",link:"https://www.nodeseek.com/post-583669-1"},
+        {date:"2026-01-14",asset:"USDT",amount:30,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xc6855ae0b3ef3d357f5beeea194241f04df45e8d028ba05cf6ed309c60d86d18",link:""},
+        {date:"2026-01-12",asset:"USDT",amount:10,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x0faffe8f5b4ca622cb421f85da25f3b37965486d9469bbbd898b419e10f30987",link:"https://www.nodeseek.com/post-579941-1"},
+        {date:"2026-01-11",asset:"USDT",amount:15,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xb8d4b99e43d1ab7874fa8907524a79af2c65f10c484ea7830f2cf71909e9b9c1",link:""},
+        {date:"2026-01-11",asset:"USDC",amount:10,sourceType:"onchain",platform:"Arbitrum",txHash:"0xc08d78ce5fb72ec6527e720cff52de92dbd1f71396d0c89c4170c308c8932252",link:""},
+        {date:"2026-01-10",asset:"USDC",amount:100,sourceType:"onchain",platform:"Arbitrum",txHash:"0xbc2c456a282af908f76971aa876fdeb0eacf4fcb02a77774020557d4bf289293",link:""},
+        {date:"2026-01-08",asset:"USDC",amount:20,sourceType:"onchain",platform:"Arbitrum",txHash:"0x9f1614a94551611e51bfd8472ca49f23f79436778e4660be1d1af256b6cd45b0",link:"https://www.nodeseek.com/post-575404-1"},
+        {date:"2026-01-08",asset:"USDT",amount:10,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xecd96d1d4dee7112de345fd21dcdb63895c8703c1ceea066dbbe5a5f5c80cee0",link:"https://www.nodeseek.com/post-575288-1"},
+        {date:"2026-01-08",asset:"USDC",amount:5,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x31598228037028551b74fdb473170df3441bb985ea79ddc480c344132b55855c",link:""},
+        {date:"2026-01-07",asset:"USDT",amount:20,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x372124ac331b3398262b6a8b6d10219024b47855b8865f1f74db833384828e1f",link:""},
+        {date:"2026-01-06",asset:"USDT",amount:19,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xfd1a94b142abca257cebee240a6600748fa42fea8f826addc64c2dc6c4a693ff",link:"https://www.nodeseek.com/post-572909-1"},
+        {date:"2026-01-06",asset:"USDT",amount:1,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x815cacf79166915f7855e1260177cd618005e9b1211d9da81e3bffc5cd9a2d04",link:"https://www.nodeseek.com/post-572909-1"},
+        {date:"2026-01-06",asset:"USDT",amount:10,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x04a628e88e766f78c01ffec6b91b9992587522b5966002a6ad8b2ed9dcb1dd25",link:"https://www.nodeseek.com/post-572739-1"},
+        {date:"2026-01-06",asset:"USDT",amount:2,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x66bbfea5bc9e6a753c97015fdf8db12b3e335d6d58b9c5e4e49e607fa3670ede",link:"https://www.nodeseek.com/post-572474-1"},
+        {date:"2026-01-06",asset:"USDC",amount:20,sourceType:"onchain",platform:"Arbitrum",txHash:"0xa3d5b6fa042a608769816120b7e30107fe7bb4141bc262e5bbe9044ebcf3d135",link:""},
+        {date:"2026-01-04",asset:"USDT",amount:28,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-01-03",asset:"USDT",amount:28,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
+        {date:"2026-01-03",asset:"USDT",amount:25,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x13cfb0eb7c7293ab9e13e6ecbd5625692081d20b46287ba2b247bde8708f180c",link:"https://www.nodeseek.com/post-568881-1"},
+        {date:"2026-01-03",asset:"USDT",amount:25,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x237b30b4ee63aa4e580c7865e82a08edea468057f6dd23e8c7a256e3c286b218",link:"https://www.nodeseek.com/post-568881-1"},
+        {date:"2026-01-02",asset:"USDT",amount:20.03,sourceType:"onchain",platform:"Polygon",txHash:"0x93b77963fa9d302245488e050337335608d20030ac618cb9f5893c2b87e5d0e7",link:""},
+        {date:"2026-01-02",asset:"USDT",amount:10,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-567995-1"},
+        {date:"2025-12-31",asset:"USDC",amount:10.5,sourceType:"onchain",platform:"Arbitrum",txHash:"0xa786220ec4744fbb365870ec2209615adcdfdd0eeb57bfeaad86e3f7f146a496",link:""},
+        {date:"2025-12-30",asset:"USDT",amount:10,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-564428-1"},
+        {date:"2025-12-30",asset:"USDC",amount:5,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xec9ea395130f820896e9f2e4cb694259e35605470d19289a80069d4bae7f75f9",link:"https://www.nodeseek.com/post-563840-1"},
+        {date:"2025-12-28",asset:"USDT",amount:10,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xae028abc23d38793c3fb417bacabede067b9499b8b8e977a183667a05a99fb43",link:"https://www.nodeseek.com/post-562138-1"},
+        {date:"2025-12-23",asset:"USDT",amount:10,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xcfe5b6005e84f9a18f18b976d1144b6e6e28b05da5a2959f13243a09b9dae7ca",link:"https://www.nodeseek.com/post-555037-1"},
+        {date:"2025-12-23",asset:"USDT",amount:10,sourceType:"exchange",platform:"欧易",txHash:"",link:"https://www.nodeseek.com/post-555332-1"},
+        {date:"2025-12-20",asset:"USDT",amount:15,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xd6694d15fe84bfe24d3ee13d77e80f8637d3eb269ff39df03747ec249b0bce78",link:"https://www.nodeseek.com/post-550273-1"},
+        {date:"2025-12-20",asset:"USDT",amount:20,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-550044-1"},
+        {date:"2025-12-20",asset:"USDC",amount:2,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x1bd3e8406ec950d635c0b4605e801bd50878c4cc5aa8bb3e71cb564ae1482825",link:"https://www.nodeseek.com/post-550325-1"},
+        {date:"2025-12-20",asset:"USDT",amount:5,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-549910-1"}
+    ];
+
+    // 辅助生成展示
+    function getMethodDisplay(r) {
+        if (r.sourceType === 'exchange') return `🏦 交易所 · ${r.platform}`;
+        if (r.sourceType === 'onchain') {
+            let hashShort = r.txHash ? r.txHash.slice(0,8)+'...'+r.txHash.slice(-6) : '';
+            let explorerLink = '';
+            if (r.platform.includes('BSC')) explorerLink = `https://bscscan.com/tx/${r.txHash}`;
+            else if (r.platform === 'Arbitrum') explorerLink = `https://arbiscan.io/tx/${r.txHash}`;
+            else if (r.platform === 'TRC20') explorerLink = `https://tronscan.org/#/transaction/${r.txHash}`;
+            else if (r.platform === 'Polygon') explorerLink = `https://polygonscan.com/tx/${r.txHash}`;
+            const linkPart = (r.txHash && explorerLink) ? `<a href="${explorerLink}" target="_blank" class="tx-link">${r.platform}</a>` : r.platform;
+            return `🔗 链上 · ${linkPart}`;
         }
-        
-        // 视图切换
-        tableBtn.onclick = () => {
-            recordTable.style.display = "";
-            timeline.style.display = "none";
-            tableBtn.classList.add("active");
-            timelineBtn.classList.remove("active");
-        };
-        
-        timelineBtn.onclick = () => {
-            recordTable.style.display = "none";
-            timeline.style.display = "block";
-            timelineBtn.classList.add("active");
-            tableBtn.classList.remove("active");
-        };
-        
-        // 筛选器变化时更新
-        yearFilter.onchange = assetFilter.onchange = update;
-        
-        // 初始更新
-        update();
-    </script>
+        return r.sourceType;
+    }
+
+    function getLinkDisplay(r) {
+        if (r.link && r.link.trim() !== "") return `<a href="${r.link}" target="_blank" style="color:var(--accent-gold)">📎 原帖证明</a>`;
+        return `<span style="color:var(--text-muted); font-size:0.75rem;">私信/无链接</span>`;
+    }
+
+    let currentYear = "all";
+    let currentAsset = "all";
+    let currentView = "table";
+
+    function render() {
+        let filtered = rawRecords.filter(rec => {
+            const yearMatch = (currentYear === "all" || rec.date.substring(0,4) === currentYear);
+            const assetMatch = (currentAsset === "all" || rec.asset === currentAsset);
+            return yearMatch && assetMatch;
+        });
+        // update stats
+        let sumUSDT = 0, sumUSDC = 0;
+        filtered.forEach(r => { if(r.asset === "USDT") sumUSDT += r.amount; else if(r.asset === "USDC") sumUSDC += r.amount; });
+        document.getElementById("totalUSDT").innerHTML = `${sumUSDT.toFixed(2)} <span style="font-size:0.9rem;">USDT</span>`;
+        document.getElementById("totalUSDC").innerHTML = `${sumUSDC.toFixed(2)} <span style="font-size:0.9rem;">USDC</span>`;
+        document.getElementById("totalCount").innerText = filtered.length;
+
+        // 表格渲染
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        if(filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">暂无匹配记录</td></tr>';
+        } else {
+            filtered.forEach(r => {
+                const assetClass = r.asset === "USDT" ? "asset-symbol" : "asset-symbol usdc";
+                const assetColor = r.asset === "USDT" ? "" : "usdc";
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = r.date;
+                row.insertCell(1).innerHTML = `<div class="asset-badge"><span>${r.amount.toFixed(2)}</span><span class="${assetClass}">${r.asset}</span></div>`;
+                row.insertCell(2).innerHTML = `<div class="source-link">${getMethodDisplay(r)}</div>`;
+                row.insertCell(3).innerHTML = getLinkDisplay(r);
+            });
+        }
+
+        // 时间轴渲染
+        const timelineDiv = document.getElementById("timelineContainer");
+        timelineDiv.innerHTML = "";
+        if(filtered.length === 0) {
+            timelineDiv.innerHTML = '<div class="empty-msg">暂无匹配记录</div>';
+        } else {
+            const timelineList = document.createElement("div");
+            timelineList.className = "timeline-list";
+            filtered.sort((a,b)=>b.date.localeCompare(a.date)).forEach(r => {
+                const node = document.createElement("div");
+                node.className = "timeline-node";
+                node.innerHTML = `
+                    <div class="timeline-date">📅 ${r.date}</div>
+                    <div class="timeline-asset"><strong>${r.amount.toFixed(2)} ${r.asset}</strong> 
+                    <span style="font-size:0.7rem; background:var(--bg-hover); padding:2px 8px; border-radius:20px;">${r.asset}</span></div>
+                    <div class="timeline-meta">${getMethodDisplay(r)} · ${getLinkDisplay(r)}</div>
+                `;
+                timelineList.appendChild(node);
+            });
+            timelineDiv.appendChild(timelineList);
+        }
+
+        // 切换视图样式
+        if(currentView === "table") {
+            document.getElementById("tableViewContainer").style.display = "block";
+            timelineDiv.style.display = "none";
+        } else {
+            document.getElementById("tableViewContainer").style.display = "none";
+            timelineDiv.style.display = "block";
+        }
+    }
+
+    // 初始化年份下拉
+    const yearsSet = new Set();
+    rawRecords.forEach(r => yearsSet.add(r.date.substring(0,4)));
+    const sortedYears = Array.from(yearsSet).sort((a,b)=>b.localeCompare(a));
+    const yearSelect = document.getElementById("yearSelect");
+    sortedYears.forEach(y => { const opt = document.createElement("option"); opt.value = y; opt.innerText = y+"年"; yearSelect.appendChild(opt); });
+    yearSelect.addEventListener("change", (e) => { currentYear = e.target.value; render(); });
+    document.getElementById("assetSelect").addEventListener("change", (e) => { currentAsset = e.target.value; render(); });
+    document.getElementById("tableViewBtn").addEventListener("click", () => {
+        currentView = "table";
+        document.getElementById("tableViewBtn").classList.add("active");
+        document.getElementById("timelineViewBtn").classList.remove("active");
+        render();
+    });
+    document.getElementById("timelineViewBtn").addEventListener("click", () => {
+        currentView = "timeline";
+        document.getElementById("timelineViewBtn").classList.add("active");
+        document.getElementById("tableViewBtn").classList.remove("active");
+        render();
+    });
+    // 主题切换
+    const themeBtn = document.getElementById("themeToggleBtn");
+    const htmlBody = document.body;
+    function setTheme(theme) {
+        if(theme === "dark") { htmlBody.classList.add("dark"); localStorage.setItem("ark_theme","dark"); themeBtn.innerHTML = "<span>☀️</span> 亮色模式"; }
+        else { htmlBody.classList.remove("dark"); localStorage.setItem("ark_theme","light"); themeBtn.innerHTML = "<span>🌙</span> 暗色模式"; }
+    }
+    const savedTheme = localStorage.getItem("ark_theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    setTheme(savedTheme);
+    themeBtn.addEventListener("click", () => { const isDark = htmlBody.classList.contains("dark"); setTheme(isDark ? "light" : "dark"); });
+    render();
+</script>
 </body>
 </html>
