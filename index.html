@@ -264,7 +264,9 @@
         }
         .tx-hash {
             font-family: 'SF Mono', monospace;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-left: 4px;
         }
 
         /* 时间轴视图 (简洁卡片式) */
@@ -337,8 +339,8 @@
             .record-table th, .record-table td { padding: 0.7rem 0.8rem; }
         }
     </style>
-<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-<script>LA.init({id:"3Pu4goGJsplFKCGv",ck:"3Pu4goGJsplFKCGv"})</script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3Pu4goGJsplFKCGv",ck:"3Pu4goGJsplFKCGv"})</script>
 </head>
 <body>
 <div class="container">
@@ -398,10 +400,12 @@
 
 <script>
     // ---------------------------------------------------------------
-    // 原始数据 (完全保留原代码中的全部记录, 并确保结构完整)
-    // 数据基于原html rows 建立，包含所有行信息：日期，资产，金额，方式，链接，txHash等
+    // 原始数据 (包含所有记录)
     // ---------------------------------------------------------------
     const rawRecords = [
+        {date:"2026-05-23",asset:"USDT",amount:25,sourceType:"onchain",platform:"ERC20",txHash:"0xe28c4d0d0ff995596fbf8d7ae5e1b4f0d819ca0710ff98fa4c85a7ba79979a48",link:"https://www.nodeseek.com/post-744088-1"},
+        {date:"2026-05-23",asset:"USDT",amount:4,sourceType:"onchain",platform:"Arbitrum",txHash:"0x1917c089875983946dc9a5ef38f14bb6ccd6286249a70186a6080bf57e1b3f0e",link:"https://www.nodeseek.com/post-743873-1"},
+        {date:"2026-05-22",asset:"USDT",amount:5,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x85266fcd5bb8bd64c69c91370fe88f00751f9906c8b39f7d5eb8d372ec13c2ee",link:"https://www.nodeseek.com/post-742104-1"},
         {date:"2026-05-21",asset:"USDT",amount:20,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-741244-1"},
         {date:"2026-05-21",asset:"USDC",amount:20,sourceType:"onchain",platform:"Arbitrum",txHash:"0x0f6fd3939e2ff4fb4e1aeedba3bc6b11da5a00610bb583102a2d8ec64862a7c4",link:""},
         {date:"2026-05-21",asset:"USDT",amount:25,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xb60e59ed3ad68a2c2675faeeff102491c3a8d7c411dc2983b70c1dc44c16f6c4",link:"https://www.nodeseek.com/post-739694-1"},
@@ -504,24 +508,54 @@
         {date:"2025-12-20",asset:"USDT",amount:5,sourceType:"exchange",platform:"Bybit",txHash:"",link:"https://www.nodeseek.com/post-549910-1"}
     ];
 
-    // 辅助生成展示
+    // ---------- 链上链接生成 (用于交易方式/来源列) ----------
+    function buildExplorerLink(platform, txHash) {
+        if (!txHash || txHash === "") return null;
+        const p = platform.toLowerCase();
+        if (p.includes('bsc') || p.includes('bep20')) {
+            return `https://bscscan.com/tx/${txHash}`;
+        }
+        if (p.includes('arbitrum')) {
+            return `https://arbiscan.io/tx/${txHash}`;
+        }
+        if (p.includes('trc20') || p === 'trc20') {
+            return `https://tronscan.org/#/transaction/${txHash}`;
+        }
+        if (p.includes('polygon')) {
+            return `https://polygonscan.com/tx/${txHash}`;
+        }
+        if (p === 'erc20') {
+            return `https://etherscan.io/tx/${txHash}`;
+        }
+        if (p.includes('ethereum') || p === 'eth') {
+            return `https://etherscan.io/tx/${txHash}`;
+        }
+        return null;
+    }
+
+    // 交易方式/来源列的显示 (包含链上链接)
     function getMethodDisplay(r) {
         if (r.sourceType === 'exchange') return `🏦 交易所 · ${r.platform}`;
         if (r.sourceType === 'onchain') {
+            let explorerUrl = null;
+            if (r.txHash && r.txHash !== "") {
+                explorerUrl = buildExplorerLink(r.platform, r.txHash);
+            }
             let hashShort = r.txHash ? r.txHash.slice(0,8)+'...'+r.txHash.slice(-6) : '';
-            let explorerLink = '';
-            if (r.platform.includes('BSC')) explorerLink = `https://bscscan.com/tx/${r.txHash}`;
-            else if (r.platform === 'Arbitrum') explorerLink = `https://arbiscan.io/tx/${r.txHash}`;
-            else if (r.platform === 'TRC20') explorerLink = `https://tronscan.org/#/transaction/${r.txHash}`;
-            else if (r.platform === 'Polygon') explorerLink = `https://polygonscan.com/tx/${r.txHash}`;
-            const linkPart = (r.txHash && explorerLink) ? `<a href="${explorerLink}" target="_blank" class="tx-link">${r.platform}</a>` : r.platform;
-            return `🔗 链上 · ${linkPart}`;
+            let platformDisplay = r.platform;
+            if (explorerUrl) {
+                platformDisplay = `<a href="${explorerUrl}" target="_blank" class="tx-link" rel="noopener noreferrer">${r.platform}</a>`;
+            }
+            return `🔗 链上 · ${platformDisplay}${hashShort ? `<span class="tx-hash">${hashShort}</span>` : ''}`;
         }
         return r.sourceType;
     }
 
+    // 证明链接列：仅根据原始 link 字段显示，没有就显示「私信/无链接」，绝不自动生成链上浏览
     function getLinkDisplay(r) {
-        if (r.link && r.link.trim() !== "") return `<a href="${r.link}" target="_blank" style="color:var(--accent-gold)">📎 原帖证明</a>`;
+        if (r.link && r.link.trim() !== "") {
+            return `<a href="${r.link}" target="_blank" style="color:var(--accent-gold);" rel="noopener noreferrer">📎 原帖证明</a>`;
+        }
         return `<span style="color:var(--text-muted); font-size:0.75rem;">私信/无链接</span>`;
     }
 
@@ -535,7 +569,7 @@
             const assetMatch = (currentAsset === "all" || rec.asset === currentAsset);
             return yearMatch && assetMatch;
         });
-        // update stats
+        // 更新统计
         let sumUSDT = 0, sumUSDC = 0;
         filtered.forEach(r => { if(r.asset === "USDT") sumUSDT += r.amount; else if(r.asset === "USDC") sumUSDC += r.amount; });
         document.getElementById("totalUSDT").innerHTML = `${sumUSDT.toFixed(2)} <span style="font-size:0.9rem;">USDT</span>`;
@@ -550,10 +584,9 @@
         } else {
             filtered.forEach(r => {
                 const assetClass = r.asset === "USDT" ? "asset-symbol" : "asset-symbol usdc";
-                const assetColor = r.asset === "USDT" ? "" : "usdc";
                 const row = tbody.insertRow();
                 row.insertCell(0).innerText = r.date;
-                row.insertCell(1).innerHTML = `<div class="asset-badge"><span>${r.amount.toFixed(2)}</span><span class="${assetClass}">${r.asset}</span></div>`;
+                row.insertCell(1).innerHTML = `<div class="asset-badge"><span>${r.amount.toFixed(4)}</span><span class="${assetClass}">${r.asset}</span></div>`;
                 row.insertCell(2).innerHTML = `<div class="source-link">${getMethodDisplay(r)}</div>`;
                 row.insertCell(3).innerHTML = getLinkDisplay(r);
             });
@@ -572,7 +605,7 @@
                 node.className = "timeline-node";
                 node.innerHTML = `
                     <div class="timeline-date">📅 ${r.date}</div>
-                    <div class="timeline-asset"><strong>${r.amount.toFixed(2)} ${r.asset}</strong> 
+                    <div class="timeline-asset"><strong>${r.amount.toFixed(4)} ${r.asset}</strong> 
                     <span style="font-size:0.7rem; background:var(--bg-hover); padding:2px 8px; border-radius:20px;">${r.asset}</span></div>
                     <div class="timeline-meta">${getMethodDisplay(r)} · ${getLinkDisplay(r)}</div>
                 `;
@@ -611,6 +644,7 @@
         document.getElementById("tableViewBtn").classList.remove("active");
         render();
     });
+
     // 主题切换
     const themeBtn = document.getElementById("themeToggleBtn");
     const htmlBody = document.body;
@@ -621,6 +655,7 @@
     const savedTheme = localStorage.getItem("ark_theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     setTheme(savedTheme);
     themeBtn.addEventListener("click", () => { const isDark = htmlBody.classList.contains("dark"); setTheme(isDark ? "light" : "dark"); });
+    
     render();
 </script>
 </body>
