@@ -28,6 +28,7 @@
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.03), 0 4px 8px rgba(0,0,0,0.02);
             --shadow-md: 0 8px 20px rgba(0,0,0,0.04);
             --transition: all 0.2s ease;
+            --overlay-bg: rgba(0,0,0,0.4);
         }
 
         body.dark {
@@ -42,6 +43,7 @@
             --accent-gold-soft: #2a2418;
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
             --shadow-md: 0 8px 20px rgba(0,0,0,0.3);
+            --overlay-bg: rgba(0,0,0,0.6);
         }
 
         body {
@@ -338,6 +340,132 @@
             .stat-number { font-size: 1.5rem; }
             .record-table th, .record-table td { padding: 0.7rem 0.8rem; }
         }
+
+        /* ===== 公告弹窗样式 ===== */
+        .notice-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--overlay-bg);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .notice-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .notice-modal {
+            background: var(--bg-card);
+            border-radius: 28px;
+            max-width: 560px;
+            width: 92%;
+            padding: 2rem 2rem 1.8rem;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-md), 0 20px 60px rgba(0,0,0,0.08);
+            transform: scale(0.96) translateY(12px);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
+            opacity: 0;
+            position: relative;
+        }
+        .notice-overlay.active .notice-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        .notice-badge {
+            display: inline-block;
+            background: var(--accent-gold-soft);
+            color: var(--accent-gold);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(234, 179, 8, 0.2);
+        }
+        .notice-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            letter-spacing: -0.2px;
+        }
+        .notice-body {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .notice-body strong {
+            color: var(--accent-gold);
+        }
+        .notice-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            border-top: 1px solid var(--border-light);
+            padding-top: 1.2rem;
+            margin-top: 0.2rem;
+        }
+        .notice-btn {
+            background: var(--bg-hover);
+            border: 1px solid transparent;
+            padding: 0.5rem 1.4rem;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+        .notice-btn-primary {
+            background: var(--accent-gold);
+            color: #0f172a;
+            border-color: var(--accent-gold);
+        }
+        .notice-btn-primary:hover {
+            background: #d9a100;
+            border-color: #d9a100;
+            transform: scale(0.97);
+        }
+        .notice-btn-secondary:hover {
+            background: var(--border-light);
+        }
+        /* 关闭x (小屏辅助) */
+        .notice-close-x {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            background: transparent;
+            border: none;
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            line-height: 1;
+            transition: 0.2s;
+            padding: 0.2rem 0.4rem;
+            border-radius: 20px;
+        }
+        .notice-close-x:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+        /* 避免滚动穿透 */
+        body.no-scroll {
+            overflow: hidden;
+        }
+        @media (max-width: 480px) {
+            .notice-modal { padding: 1.5rem 1.2rem; }
+            .notice-title { font-size: 1.2rem; }
+        }
     </style>
     <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
     <script>LA.init({id:"3Pu4goGJsplFKCGv",ck:"3Pu4goGJsplFKCGv"})</script>
@@ -398,11 +526,40 @@
     <footer>© 2025-2026 个人历史成交档案 · 链上记录皆可公开查询</footer>
 </div>
 
+<!-- ===== 公告弹窗 HTML ===== -->
+<div class="notice-overlay" id="noticeOverlay">
+    <div class="notice-modal" role="dialog" aria-labelledby="noticeTitle">
+        <button class="notice-close-x" id="noticeCloseX" aria-label="关闭公告">✕</button>
+        <div class="notice-badge">📢 最新公告</div>
+        <div class="notice-title" id="noticeTitle">隐私保护升级</div>
+        <!-- 公告内容区：自由编辑，已加入 Telegram 链接 -->
+        <div class="notice-body" id="noticeBody">
+            <p>为防止用户信息泄露及恶意爬取，本站将不再进行更新，</p>
+            <p style="margin-top:0.5rem; font-size:0.9rem; opacity:0.7;">不再公开展示原帖证明链接；</p>
+            <p style="margin-top:0.5rem; font-size:0.9rem; opacity:0.7;">不再公开展示完整链上交易哈希（Tx Hash）；</p>
+            <p style="margin-top:0.5rem; font-size:0.9rem; opacity:0.7;">所有成交记录均为真实历史交易，相关完整凭证及链上记录均已留存，如有需要，可在Telegram频道里查看交易截图。</p>
+            <!-- 新增 Telegram 频道入口，设计为醒目的卡片按钮 -->
+            <div style="margin-top: 1.2rem; padding: 0.8rem 1rem; background: var(--bg-hover); border-radius: 16px; border-left: 4px solid #26A5E4; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <span style="font-size: 1.5rem;">Telegram 频道</span>
+<span style="font-weight: 500; font-size: 0.95rem;">Telegram 频道内会持续发布部分交易截图，并展示<strong>脱敏后</strong>的交易哈希（Tx Hash），方便查阅近期成交记录，同时兼顾用户隐私保护。</span>
+                <a href="https://t.me/G1314047" target="_blank" rel="noopener noreferrer" style="background: #26A5E4; color: #fff; padding: 0.3rem 1.2rem; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 0.85rem; margin-left: auto; transition: 0.2s; box-shadow: 0 2px 8px rgba(38,165,228,0.3);">点击进入 →</a>
+           </div>
+        </div>
+        <div class="notice-actions">
+            <button class="notice-btn notice-btn-secondary" id="noticeLaterBtn">稍后查看</button>
+            <button class="notice-btn notice-btn-primary" id="noticeConfirmBtn">我知道了</button>
+        </div>
+    </div>
+</div>
 <script>
     // ---------------------------------------------------------------
     // 原始数据 (包含所有记录)
     // ---------------------------------------------------------------
     const rawRecords = [
+        {date:"2026-07-18",asset:"USDT",amount:140,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0x92c13079e0a199c36575a26206f486c588b14024b4fd219e6e3c7d717eb3ac21",link:""},
+        {date:"2026-07-18",asset:"USDT",amount:100,sourceType:"exchange",platform:"OKX",txHash:"",link:""},
+        {date:"2026-07-17",asset:"USDT",amount:20,sourceType:"onchain",platform:"BSC(BEP20)",txHash:"0xae8f5d345b6ea77733c8790497c802929410ee46a6ce7eb9156ff6cd446476d4",link:""},
+        {date:"2026-07-16",asset:"USDT",amount:50,sourceType:"exchange",platform:"OKX",txHash:"",link:""},
         {date:"2026-07-16",asset:"USDT",amount:50,sourceType:"exchange",platform:"OKX",txHash:"",link:""},
         {date:"2026-07-16",asset:"USDT",amount:10,sourceType:"exchange",platform:"Bybit",txHash:"",link:""},
         {date:"2026-07-15",asset:"USDT",amount:21,sourceType:"onchain",platform:"Polygon",txHash:"0xb320e4f46149ce9956ff86df54f704d1ac0dd9656ef149496acdb10725232276",link:"https://www.nodeseek.com/post-823488-1"},
@@ -772,7 +929,54 @@
     const savedTheme = localStorage.getItem("ark_theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     setTheme(savedTheme);
     themeBtn.addEventListener("click", () => { const isDark = htmlBody.classList.contains("dark"); setTheme(isDark ? "light" : "dark"); });
-    
+
+    // ===== 公告弹窗控制 =====
+    const overlay = document.getElementById('noticeOverlay');
+    const confirmBtn = document.getElementById('noticeConfirmBtn');
+    const laterBtn = document.getElementById('noticeLaterBtn');
+    const closeX = document.getElementById('noticeCloseX');
+
+    function openNotice() {
+        overlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+    }
+
+    function closeNotice() {
+        overlay.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+    }
+
+    // 打开弹窗（页面加载后延迟半秒显示，更自然）
+    window.addEventListener('load', function() {
+        // 如果用户曾经在本次会话中关闭过，不再自动弹出（用 sessionStorage 控制）
+        if (sessionStorage.getItem('noticeClosed') === 'true') {
+            return;
+        }
+        setTimeout(openNotice, 500);
+    });
+
+    // 关闭事件：确认、稍后查看、X 按钮均关闭，且标记会话已读
+    function handleClose() {
+        closeNotice();
+        sessionStorage.setItem('noticeClosed', 'true');
+    }
+
+    confirmBtn.addEventListener('click', handleClose);
+    laterBtn.addEventListener('click', handleClose);
+    closeX.addEventListener('click', handleClose);
+    // 点击背景遮罩也关闭（方便用户）
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            handleClose();
+        }
+    });
+
+    // 如果用户想手动重新打开公告（例如控制台调试），可以暴露全局函数
+    window.reopenNotice = function() {
+        sessionStorage.removeItem('noticeClosed');
+        openNotice();
+    };
+
     render();
 </script>
 </body>
